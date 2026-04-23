@@ -1,1 +1,721 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#080612"/><title>Conference Intelligence</title></head><body style="margin:0;background:#080612"><div id="root"></div><script type="module" src="/src/index.jsx"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#080612">
+  <title>Conference Intelligence</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>*{margin:0;padding:0;box-sizing:border-box;}html,body{height:100%;background:#080612;font-family:Arial,sans-serif;}#root{height:100%;}</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+const PU = "#3B2F8F", VI = "#6C5CE7", LP = "#EDE9FF";
+
+const CONFERENCES = [
+  { key:"databricks", name:"Databricks Data+AI Summit", dates:"June 15-18, 2026", location:"Moscone Center, San Francisco, CA", mapLink:"https://maps.google.com/?q=Moscone+Center+San+Francisco", days:[15,16,17,18], month:5, year:2026, schedule:[{time:"8:00 AM",item:"Registration & Badge Pickup, South Lobby"},{time:"9:00 AM",item:"Opening Keynote: Ali Ghodsi & Matei Zaharia"},{time:"11:00 AM",item:"Data Engineering Track Begins"},{time:"12:30 PM",item:"Expo Hall Open, Networking Lunch"},{time:"2:00 PM",item:"GenAI & LLM Sessions"},{time:"4:00 PM",item:"Workshops Block 1"},{time:"6:00 PM",item:"Day 1 Evening Reception, Expo Hall"}], protege:["Day 2 (Jun 16): DataLab Breakfast @ The Grove SF, 7:30am","Day 2 (Jun 16): Hosted Dinner @ Alexander's Steakhouse, 7:00pm","Dress code: Business casual","Uber from The Grove to Moscone: ~5 min"], sams:["nick","joe","isabel","cody","kaleb"] },
+  { key:"msbuild", name:"Microsoft Build", dates:"May 19-21, 2026", location:"Seattle Convention Center, Seattle, WA", mapLink:"https://maps.google.com/?q=Seattle+Convention+Center", days:[19,20,21], month:4, year:2026, schedule:[{time:"9:00 AM",item:"Keynote: Satya Nadella"},{time:"11:00 AM",item:"Azure AI Track Opens"},{time:"1:00 PM",item:"Networking Lunch"},{time:"2:00 PM",item:"Copilot & Enterprise AI Sessions"},{time:"4:00 PM",item:"Partner Showcase & Networking"}], protege:["Primary target: Eric Boyd (CVP Azure AI) and Microsoft Research data leads","Activation TBD — Outreach: March 2026","Cody owns Microsoft. Nick covers OpenAI-via-Microsoft angle."], sams:["cody","nick"] },
+  { key:"googleio", name:"Google I/O", dates:"May 2026", location:"Shoreline Amphitheatre, Mountain View, CA", mapLink:"https://maps.google.com/?q=Shoreline+Amphitheatre+Mountain+View", days:[20,21,22], month:4, year:2026, schedule:[{time:"10:00 AM",item:"Keynote: Sundar Pichai"},{time:"12:00 PM",item:"DeepMind & AI Research Sessions"},{time:"2:00 PM",item:"Google Cloud AI Track"},{time:"4:00 PM",item:"Health AI & Multimodal Sessions"},{time:"6:00 PM",item:"Evening Demo & Networking"}], protege:["Primary targets: Ed Chi (Google DeepMind VP Research), Google Cloud AI data leads","Isabel covers Google Health AI overlap with Amazon","Cody owns Google accounts end to end","Outreach: March 2026"], sams:["cody","isabel"] },
+  { key:"cvpr", name:"CVPR 2026", dates:"June 3-7, 2026", location:"Denver Convention Center, Denver, CO", mapLink:"https://maps.google.com/?q=Denver+Convention+Center", days:[3,4,5,6,7], month:5, year:2026, schedule:[{time:"9:00 AM",item:"Tutorials Day 1 — Computer Vision Fundamentals"},{time:"11:00 AM",item:"Workshop: Data-Centric Vision Models"},{time:"1:00 PM",item:"Lunch & Poster Sessions"},{time:"3:00 PM",item:"Main Conference Keynote"},{time:"5:30 PM",item:"Industry Networking Reception"}], protege:["Ash: Runway ML, Midjourney, Pika Labs, Adobe Firefly, Stability AI all here","Nick: OpenAI multimodal and Apple vision research teams","Joe: Meta AI vision data and NVIDIA Bryan Catanzaro","Best conference for rights-cleared video and image data story"], sams:["ash","nick","joe"] },
+  { key:"snowflake", name:"Snowflake Summit", dates:"June 1-4, 2026", location:"Moscone Center, San Francisco, CA", mapLink:"https://maps.google.com/?q=Moscone+Center+San+Francisco", days:[1,2,3,4], month:5, year:2026, schedule:[{time:"9:00 AM",item:"Opening Keynote: Sridhar Ramaswamy"},{time:"11:00 AM",item:"Snowflake Cortex AI Sessions"},{time:"1:00 PM",item:"Data Governance & AI Track"},{time:"3:00 PM",item:"Enterprise AI Case Studies"},{time:"5:00 PM",item:"Partner Expo & Evening Reception"}], protege:["Cody: Snowflake Cortex AI head, Salesforce, Microsoft Azure data teams","Kaleb: JPMorgan, T-Mobile, Nasdaq, Block — enterprise data holders all here","Naveen Rao (Databricks VP AI) also confirmed — warm follow-up from Databricks activation"], sams:["cody","kaleb"] },
+  { key:"siggraph", name:"SIGGRAPH 2026", dates:"July/August 2026", location:"Los Angeles Convention Center, Los Angeles, CA", mapLink:"https://maps.google.com/?q=Los+Angeles+Convention+Center", days:[28,29,30,31], month:6, year:2026, schedule:[{time:"9:00 AM",item:"Technical Papers Program Opens"},{time:"11:00 AM",item:"Real-Time Live! Demo Sessions"},{time:"1:00 PM",item:"Lunch & Exhibition Hall"},{time:"2:30 PM",item:"Machine Learning for Visual Data"},{time:"5:00 PM",item:"Studio & Industry Reception"}], protege:["Ash primary: Runway, Midjourney, Pika, Adobe, Stability AI, ILM, Disney Research","Joe: NVIDIA Bryan Catanzaro, Meta AI vision data teams","Cody: Google DeepMind vision research","Best event for rights-cleared video and image data story"], sams:["ash","joe","cody"] },
+  { key:"ai4", name:"Ai4 Conference", dates:"August 4-6, 2026", location:"The Venetian, Las Vegas, NV", mapLink:"https://maps.google.com/?q=The+Venetian+Las+Vegas", days:[4,5,6], month:7, year:2026, schedule:[{time:"9:00 AM",item:"Opening Keynote: Enterprise AI in 2026"},{time:"11:00 AM",item:"Healthcare AI Track"},{time:"1:00 PM",item:"Financial Services AI Track"},{time:"3:00 PM",item:"Industrial AI & Data Governance"},{time:"5:00 PM",item:"Networking Reception & Expo"}], protege:["Kaleb primary: JPMorgan, Kaiser Permanente, Humana, Wells Fargo, Shell","Brian: GTM partner conversations with Deloitte AI, Weights & Biases","Enterprise data holder activation — governance and monetization framing","Budget est: $8K, outreach starts June 2026"], sams:["kaleb","brian"] },
+  { key:"dreamforce", name:"Dreamforce 2026", dates:"September 2026", location:"Moscone Center, San Francisco, CA", mapLink:"https://maps.google.com/?q=Moscone+Center+San+Francisco", days:[15,16,17,18], month:8, year:2026, schedule:[{time:"9:00 AM",item:"Keynote: Marc Benioff"},{time:"11:00 AM",item:"Einstein AI & Data Sessions"},{time:"1:00 PM",item:"Customer Success Showcase"},{time:"2:30 PM",item:"Healthcare & Financial Services AI"},{time:"5:00 PM",item:"Evening Concert & Networking"}], protege:["Cody: Salesforce Einstein AI, ServiceNow CJ Desai, Slack data teams","Kaleb: JPMorgan, Kaiser Permanente, Humana, Nasdaq, Block","Isabel: Amazon AWS data teams in attendance","Ash: Comcast media and data teams","40,000+ attendees — biggest enterprise activation of the year","Outreach: July 2026"], sams:["cody","kaleb","isabel","ash"] },
+  { key:"emnlp", name:"EMNLP 2026", dates:"November 2026", location:"TBD", mapLink:"https://maps.google.com/?q=EMNLP+NLP+conference+2026", days:[10,11,12,13], month:10, year:2026, schedule:[{time:"9:00 AM",item:"Main Conference Tutorials"},{time:"11:00 AM",item:"NLP Research Paper Sessions"},{time:"1:00 PM",item:"Poster Sessions & Lunch"},{time:"3:00 PM",item:"Industry Track: Text Data at Scale"},{time:"5:00 PM",item:"Networking Reception"}], protege:["Wes: DataLab research credibility — text data factuality and contamination work","Isabel: Anthropic NLP research team, Amazon Science","Nick: OpenAI NLP data leads, Cohere Nick Frosst","Kaleb: Thomson Reuters and LexisNexis legal data holders attend","Key angle: DataLab FICO scores for text dataset quality"], sams:["wes","isabel","nick","kaleb"] },
+  { key:"reinvent", name:"AWS re:Invent", dates:"December 2026", location:"The Venetian, Las Vegas, NV", mapLink:"https://maps.google.com/?q=The+Venetian+Las+Vegas", days:[1,2,3,4,5], month:11, year:2026, schedule:[{time:"9:00 AM",item:"Keynote: AWS CEO"},{time:"11:00 AM",item:"Amazon Bedrock & AI Data Sessions"},{time:"1:00 PM",item:"Healthcare AI & Compliance Track"},{time:"3:00 PM",item:"Enterprise ML Data Infrastructure"},{time:"5:30 PM",item:"Partner Expo & Networking"}], protege:["Isabel primary: Amazon Bedrock data team, Amazon Health AI, Anthropic-AWS partnership leads","Kaleb: Enterprise data holders attending — Nasdaq, T-Mobile, Comcast","Anthropic has a confirmed AWS partnership — warm entry point","Outreach: October 2026"], sams:["isabel","kaleb"] },
+  { key:"neurips", name:"NeurIPS 2026", dates:"December 2026", location:"Sydney, Australia", mapLink:"https://maps.google.com/?q=NeurIPS+2026+Sydney", days:[7,8,9,10,11,12,13], month:11, year:2026, schedule:[{time:"9:00 AM",item:"Tutorials & Workshops Day 1"},{time:"11:00 AM",item:"Research Paper Sessions"},{time:"1:00 PM",item:"Poster Sessions & Lunch"},{time:"3:00 PM",item:"Industry Expo Opens"},{time:"6:00 PM",item:"Evening Reception & Networking"}], protege:["Largest AI research conference in the world — 12,000+ attendees","Nick: OpenAI pre-training data leads, Apple ML research, SSI (Ilya Sutskever)","Joe: Meta FAIR, NVIDIA Bryan Catanzaro","Isabel: Anthropic alignment and data teams, Amazon Science","Cody: Google DeepMind, Microsoft Research","Wes: DataLab research publication and benchmark credibility","a16z Anjney Midha — warm intro opportunity for any account","Outreach: October 2026"], sams:["nick","joe","isabel","cody","wes","kaleb"] },
+];
+
+const getConferences = (samKey) => CONFERENCES.filter(c => c.sams && c.sams.includes(samKey));
+
+const VERTICALS = ["Tech","Healthcare","Video","Audio","Financial","Legal","Industrial","Media","Pharma","Research","GTM Partner"];
+
+const SAMS = {
+  nick:    { name:"Nick Zambruno", role:"Strategic Accounts — Data + AI", accounts:["OpenAI","Apple"], email:"nick@withprotege.ai", linkedin:"linkedin.com/in/nickzambruno", color:"#6C5CE7", avatar:"N",
+    contacts:[
+      {id:1,first:"Aidan",last:"Gomez",company:"Cohere",title:"CEO",email:"aidan@cohere.ai",phone:"+1 415 555 0101",vertical:"Tech",notes:"Met at Databricks breakfast. Very interested in DataLab research.",linkedin:"linkedin.com/in/aidangomez",lastContact:"Apr 7, 2026",tag:"Warm"},
+      {id:2,first:"Sara",last:"Hooker",company:"Cohere",title:"VP Research",email:"sara@cohere.ai",phone:"+1 415 555 0102",vertical:"Tech",notes:"Responded to Touch 2. Wants to see DataLab FICO score methodology.",linkedin:"linkedin.com/in/sara-hooker",lastContact:"Apr 9, 2026",tag:"Hot"},
+      {id:3,first:"Bryan",last:"Catanzaro",company:"NVIDIA",title:"VP Applied Deep Learning",email:"bryan@nvidia.com",phone:"+1 408 555 0103",vertical:"Tech",notes:"Confirmed for dinner June 16.",linkedin:"linkedin.com/in/bryancatanzaro",lastContact:"Apr 12, 2026",tag:"Hot"},
+    ],
+    meetings:[{id:1,contact:"Aidan Gomez",company:"Cohere",date:"Jun 16, 2026",time:"7:30 AM",location:"The Grove SF",type:"Breakfast",status:"confirmed"},{id:2,contact:"Sara Hooker",company:"Cohere",date:"Jun 16, 2026",time:"7:30 AM",location:"The Grove SF",type:"Breakfast",status:"confirmed"},{id:3,contact:"Bryan Catanzaro",company:"NVIDIA",date:"Jun 16, 2026",time:"7:00 PM",location:"Alexander's Steakhouse",type:"Dinner",status:"confirmed"},{id:4,contact:"Arthur Mensch",company:"Mistral AI",date:"Jun 16, 2026",time:"7:30 AM",location:"The Grove SF",type:"Breakfast",status:"pending"}]
+  },
+  joe:     { name:"Joe Osborne", role:"Manager, Strategic Accounts", accounts:["Meta","NVIDIA"], email:"joe.osborne@withprotege.ai", linkedin:"linkedin.com/in/joejosborne", color:"#0984E3", avatar:"J",
+    contacts:[
+      {id:1,first:"Bryan",last:"Catanzaro",company:"NVIDIA",title:"VP Applied Deep Learning",email:"bryan@nvidia.com",phone:"+1 408 555 0103",vertical:"Tech",notes:"Top priority. Confirmed for dinner.",linkedin:"linkedin.com/in/bryancatanzaro",lastContact:"Apr 12, 2026",tag:"Hot"},
+      {id:2,first:"Data",last:"Lead",company:"Meta AI",title:"Head of Data Infrastructure",email:"",phone:"",vertical:"Tech",notes:"Need to find specific name via LinkedIn.",linkedin:"linkedin.com search: Head Data Infrastructure Meta AI",lastContact:"",tag:"Awareness"},
+    ],
+    meetings:[{id:1,contact:"Bryan Catanzaro",company:"NVIDIA",date:"Jun 16, 2026",time:"7:00 PM",location:"Alexander's Steakhouse",type:"Dinner",status:"confirmed"},{id:2,contact:"Meta AI Data Lead",company:"Meta AI",date:"Jun 17, 2026",time:"10:00 AM",location:"Moscone Center",type:"1:1",status:"pending"}]
+  },
+  isabel:  { name:"Isabel Mitchell", role:"Healthcare GTM", accounts:["Anthropic","Amazon"], email:"isabel@withprotege.ai", linkedin:"linkedin.com/in/isabelfmitchell", color:"#00B894", avatar:"I",
+    contacts:[
+      {id:1,first:"Amanda",last:"Askell",company:"Anthropic",title:"Member of Technical Staff",email:"amanda@anthropic.com",phone:"",vertical:"Tech",notes:"Research alignment track. DataLab governance angle resonates.",linkedin:"linkedin.com/in/amandaaskell",lastContact:"Apr 10, 2026",tag:"Warm"},
+    ],
+    meetings:[{id:1,contact:"Amanda Askell",company:"Anthropic",date:"Jun 16, 2026",time:"7:30 AM",location:"The Grove SF",type:"Breakfast",status:"confirmed"}]
+  },
+  cody:    { name:"Cody Sedler", role:"Commercial Lead", accounts:["Google","Microsoft"], email:"cody@withprotege.ai", linkedin:"linkedin.com/in/codysedler", color:"#E17055", avatar:"C",
+    contacts:[
+      {id:1,first:"Ed",last:"Chi",company:"Google DeepMind",title:"VP Research",email:"edchi@google.com",phone:"",vertical:"Tech",notes:"Public about data quality gap in production AI. Warm signal.",linkedin:"linkedin.com/in/edchi",lastContact:"Apr 11, 2026",tag:"Warm"},
+      {id:2,first:"Eric",last:"Boyd",company:"Microsoft Azure AI",title:"CVP Azure AI Platform",email:"eric.boyd@microsoft.com",phone:"",vertical:"Tech",notes:"Keynote-level presence at Data+AI Summit. Confirmed attendee.",linkedin:"linkedin.com/in/ericboyd",lastContact:"Apr 8, 2026",tag:"Hot"},
+    ],
+    meetings:[{id:1,contact:"Ed Chi",company:"Google DeepMind",date:"Jun 16, 2026",time:"7:30 AM",location:"The Grove SF",type:"Breakfast",status:"confirmed"},{id:2,contact:"Eric Boyd",company:"Microsoft Azure AI",date:"Jun 16, 2026",time:"7:00 PM",location:"Alexander's Steakhouse",type:"Dinner",status:"pending"}]
+  },
+  kaleb:   { name:"Kaleb Dubin", role:"Commercial Data Strategy", accounts:["Healthcare","Middle-tail"], email:"kaleb@withprotege.ai", linkedin:"linkedin.com/in/kalebdubin", color:"#3B6D11", avatar:"K",
+    contacts:[
+      {id:1,first:"Eric",last:"Lefkofsky",company:"Tempus AI",title:"CEO",email:"",phone:"",vertical:"Healthcare",notes:"Healthcare AI. Confirmed for HIMSS and Databricks.",linkedin:"linkedin.com/in/ericlefkofsky",lastContact:"Apr 5, 2026",tag:"Hot"},
+    ],
+    meetings:[]
+  },
+  ash:     { name:"Ashley Snow", role:"Head of Media Business", accounts:["Video/Media"], email:"ashley@withprotege.ai", linkedin:"linkedin.com/in/ashleypsnow", color:"#C2410C", avatar:"A",
+    contacts:[
+      {id:1,first:"Head of",last:"Research",company:"Runway ML",title:"Head of Research",email:"",phone:"",vertical:"Video",notes:"Video generation model training. Needs rights-cleared video data at scale.",linkedin:"linkedin.com search: Head Research Runway ML",lastContact:"",tag:"Awareness"},
+      {id:2,first:"Demi",last:"Guo",company:"Pika Labs",title:"Co-Founder",email:"",phone:"",vertical:"Video",notes:"Video generation startup. Founders attend technical conferences and are accessible.",linkedin:"linkedin.com/in/demiguo",lastContact:"",tag:"Awareness"},
+      {id:3,first:"Head of",last:"Generative AI",company:"Adobe",title:"Head of Firefly AI Data",email:"",phone:"",vertical:"Video",notes:"Adobe Firefly image and video model training. IP litigation history — Protege governance story is immediately credible.",linkedin:"linkedin.com search: Head Generative AI Adobe",lastContact:"",tag:"Warm"},
+    ],
+    meetings:[]
+  },
+  brian:   { name:"Brian Cappy", role:"Head of GTM Partnerships", accounts:["Annotation","RL Gyms"], email:"brian.cappy@withprotege.ai", linkedin:"linkedin.com/in/briancappy", color:"#7C3AED", avatar:"B",
+    contacts:[
+      {id:1,first:"Alexandr",last:"Wang",company:"Scale AI",title:"CEO",email:"",phone:"",vertical:"GTM Partner",notes:"Scale AI partnerships team. Brian's highest-leverage annual event is Scale AI Transform.",linkedin:"linkedin.com/in/alexandrwang",lastContact:"",tag:"Awareness"},
+      {id:2,first:"CEO",last:"Mercor",company:"Mercor",title:"CEO or Head of Partnerships",email:"",phone:"",vertical:"GTM Partner",notes:"Annotation and labeling company. Target for co-selling partnership.",linkedin:"linkedin.com search: CEO Mercor AI",lastContact:"",tag:"Awareness"},
+    ],
+    meetings:[]
+  },
+  logan:   { name:"Logan Johnston", role:"Head of Community, Research Relations", accounts:["Research Community"], email:"logan.johnston@withprotege.ai", linkedin:"linkedin.com/in/growthcommunity", color:"#0891B2", avatar:"L",
+    contacts:[
+      {id:1,first:"Sara",last:"Hooker",company:"Cohere",title:"VP Research",email:"sara@cohere.ai",phone:"",vertical:"Research",notes:"Leading voice on data-efficient learning. Key researcher community relationship.",linkedin:"linkedin.com/in/sara-hooker",lastContact:"",tag:"Warm"},
+      {id:2,first:"Engy",last:"Ziedan",company:"Protege DataLab",title:"Chief Scientific Officer",email:"",phone:"",vertical:"Research",notes:"Internal — DataLab CSO. Works closely with Logan on researcher engagement.",linkedin:"linkedin.com/in/engyziedan",lastContact:"",tag:"Hot"},
+    ],
+    meetings:[]
+  },
+  kortnee: { name:"Kortnee Johnson", role:"Head of Commercial Operations", accounts:["Commercial Ops"], email:"kortnee.johnson@withprotege.ai", linkedin:"linkedin.com/in/kortnee-johnson-718a302b", color:"#BE185D", avatar:"Ko",
+    contacts:[],
+    meetings:[]
+  },
+  wes:     { name:"Wes Hopkins", role:"Head of Operations, DataLab", accounts:["DataLab Ops"], email:"wes@withprotege.ai", linkedin:"linkedin.com/in/wesley-hopkins", color:"#0F6E56", avatar:"W",
+    contacts:[],
+    meetings:[]
+  },
+  don:     { name:"Don Addington", role:"Chief Commercial Officer", accounts:["Commercial"], email:"don@withprotege.ai", linkedin:"linkedin.com/in/don-addington-86a91b1", color:"#1D4ED8", avatar:"D",
+    contacts:[],
+    meetings:[]
+  },
+};
+
+const TAG_COLORS = {
+  Hot:       { bg:"#FEE2E2", text:"#991B1B", dot:"#EF4444" },
+  Warm:      { bg:"#FEF9C3", text:"#854D0E", dot:"#EAB308" },
+  Awareness: { bg:"#F1F5F9", text:"#475569", dot:"#94A3B8" },
+};
+const VERTICAL_COLORS = {
+  Tech:        "#6C5CE7", Healthcare:  "#0F6E56", Video:       "#C2410C",
+  Audio:       "#0891B2", Financial:   "#854D0E", Legal:       "#475569",
+  Industrial:  "#44403C", Media:       "#9F1239", Pharma:      "#065F46",
+  Research:    "#1D4ED8", "GTM Partner":"#7C3AED",
+};
+const STATUS_CONFIG = {
+  confirmed:   { label:"Confirmed",   bg:"#14532D", text:"#4ADE80", dot:"#22C55E" },
+  pending:     { label:"Pending",     bg:"#713F12", text:"#FDE047", dot:"#FACC15" },
+  unconfirmed: { label:"Unconfirmed", bg:"#7F1D1D", text:"#FCA5A5", dot:"#EF4444" },
+  cancelled:   { label:"Cancelled",   bg:"#1E293B", text:"#94A3B8", dot:"#64748B" },
+};
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const toHour = (t) => {
+  if (!t) return -1;
+  const p = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!p) return -1;
+  let h = parseInt(p[1]);
+  if (p[3].toUpperCase()==="PM" && h!==12) h+=12;
+  if (p[3].toUpperCase()==="AM" && h===12) h=0;
+  return h;
+};
+
+const load = async (k) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } };
+const save = async (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+const SAMPLE_BADGES = [
+  { first:"Naveen", last:"Rao",     company:"Databricks",  title:"VP of AI",        linkedin:"linkedin.com/in/naveenrao",     email:"naveen@databricks.com" },
+  { first:"CJ",     last:"Desai",   company:"ServiceNow",  title:"President & COO", linkedin:"linkedin.com/in/cjdesai",       email:"cj@servicenow.com" },
+  { first:"Martin", last:"Casado",  company:"a16z",        title:"General Partner", linkedin:"linkedin.com/in/martin-casado", email:"martin@a16z.com" },
+];
+
+function ProtegeApp() {
+  const [user,  setUser]  = useState(null);
+  const [tab,   setTab]   = useState("home");
+  const [contacts,  setContacts]  = useState([]);
+  const [meetings,  setMeetings]  = useState([]);
+  const [confMisc,  setConfMisc]  = useState({});
+  const [showAddContact,  setShowAddContact]  = useState(false);
+  const [showAddMeeting,  setShowAddMeeting]  = useState(false);
+  const [showAddMisc,     setShowAddMisc]     = useState(false);
+  const [editMtgId,   setEditMtgId]   = useState(null);
+  const [editMtgData, setEditMtgData] = useState({});
+  const [selContact,  setSelContact]  = useState(null);
+  const [newContact,  setNewContact]  = useState({first:"",last:"",company:"",title:"",email:"",phone:"",notes:"",linkedin:"",vertical:""});
+  const [newMeeting,  setNewMeeting]  = useState({contact:"",company:"",date:"",time:"",location:"",type:"1:1",status:"pending"});
+  const [newMisc,     setNewMisc]     = useState("");
+  const [scanMode,    setScanMode]    = useState(false);
+  const [scanned,     setScanned]     = useState(null);
+  const [calMonth,    setCalMonth]    = useState(5);
+  const [calYear,     setCalYear]     = useState(2026);
+  const [selDay,      setSelDay]      = useState(null);
+  const [agendaDate,  setAgendaDate]  = useState("Jun 16, 2026");
+
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const c = await load(`c_${user}`);
+        const m = await load(`m_${user}`);
+        const mi = await load(`mi_${user}`);
+        setContacts(c || SAMS[user].contacts);
+        setMeetings(m || SAMS[user].meetings);
+        setConfMisc(mi || {});
+      })();
+    }
+  }, [user]);
+
+  const saveCon = (c) => { setContacts(c); save(`c_${user}`,c); };
+  const saveMtg = (m) => { setMeetings(m); save(`m_${user}`,m); };
+  const saveMsc = (m) => { setConfMisc(m); save(`mi_${user}`,m); };
+
+  const sam = user ? SAMS[user] : null;
+  const myConfs = user ? getConferences(user) : [];
+
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const firstDay    = new Date(calYear, calMonth, 1).getDay();
+  const confDaySet  = new Set();
+  const confDayMap  = {};
+  myConfs.forEach(c => {
+    if (c.month===calMonth && c.year===calYear) {
+      const abbr = c.name.split(" ")[0].substring(0,5);
+      c.days.forEach(d => { confDaySet.add(d); confDayMap[d]=abbr; });
+    }
+  });
+  const mtgDaySet = new Set(meetings.map(m => {
+    const d = new Date(m.date);
+    if (d.getMonth()===calMonth && d.getFullYear()===calYear) return d.getDate();
+    return null;
+  }).filter(Boolean));
+
+  const MtgCard = ({ m, compact=false }) => {
+    const isEdit = editMtgId === m.id;
+    const eD = isEdit ? editMtgData : m;
+    const cfg = STATUS_CONFIG[eD.status] || STATUS_CONFIG.pending;
+    const inp = { background:"rgba(255,255,255,0.07)", border:"1px solid rgba(108,92,231,0.3)", borderRadius:6, padding:"5px 8px", color:"#fff", fontSize:compact?11:12, outline:"none", fontFamily:"Arial, sans-serif", width:"100%", boxSizing:"border-box" };
+    const lbl = { color:"#6C5CE7", fontSize:9, textTransform:"uppercase", marginBottom:2 };
+    return (
+      <div style={{ background:"#0F0A1E", border:`1px solid ${isEdit?"#6C5CE7":cfg.dot+"30"}`, borderRadius:10, padding:compact?"8px 10px":"12px 14px", marginBottom:compact?4:8, borderLeft:`3px solid ${isEdit?"#6C5CE7":cfg.dot}` }}>
+        {isEdit ? (
+          <div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+              <div><div style={lbl}>Contact</div><input value={eD.contact} onChange={e=>setEditMtgData(p=>({...p,contact:e.target.value}))} style={inp}/></div>
+              <div><div style={lbl}>Time</div><input value={eD.time} onChange={e=>setEditMtgData(p=>({...p,time:e.target.value}))} style={inp}/></div>
+              {!compact && <><div><div style={lbl}>Company</div><input value={eD.company} onChange={e=>setEditMtgData(p=>({...p,company:e.target.value}))} style={inp}/></div>
+              <div><div style={lbl}>Date</div><input value={eD.date} onChange={e=>setEditMtgData(p=>({...p,date:e.target.value}))} style={inp}/></div></>}
+            </div>
+            <div style={{marginBottom:6}}><div style={lbl}>Location</div><input value={eD.location} onChange={e=>setEditMtgData(p=>({...p,location:e.target.value}))} style={inp}/></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
+              <div><div style={lbl}>Type</div><select value={eD.type} onChange={e=>setEditMtgData(p=>({...p,type:e.target.value}))} style={inp}>{["Breakfast","Dinner","1:1","Call","Demo","Follow-up"].map(t=><option key={t}>{t}</option>)}</select></div>
+              <div><div style={lbl}>Status</div><select value={eD.status} onChange={e=>setEditMtgData(p=>({...p,status:e.target.value}))} style={inp}><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="unconfirmed">Unconfirmed</option><option value="cancelled">Cancelled</option></select></div>
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={()=>{setEditMtgId(null);setEditMtgData({});}} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",borderRadius:7,padding:"7px 0",cursor:"pointer",fontSize:12}}>Cancel</button>
+              <button onClick={()=>{saveMtg(meetings.map(x=>x.id===m.id?{...x,...editMtgData}:x));setEditMtgId(null);setEditMtgData({});}} style={{flex:2,background:"#6C5CE7",border:"none",color:"#fff",borderRadius:7,padding:"7px 0",cursor:"pointer",fontWeight:"bold",fontSize:12}}>Save</button>
+              {!compact && <button onClick={()=>{if(window.confirm("Delete this meeting?"))saveMtg(meetings.filter(x=>x.id!==m.id));setEditMtgId(null);}} style={{flex:1,background:"rgba(239,68,68,0.15)",border:"1px solid rgba(239,68,68,0.3)",color:"#EF4444",borderRadius:7,padding:"7px 0",cursor:"pointer",fontSize:12}}>Delete</button>}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:compact?3:6}}>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:7,height:7,borderRadius:"50%",background:"#22C55E",flexShrink:0}}/>
+                <div style={{color:"#22C55E",fontWeight:"bold",fontSize:compact?12:14,textDecoration:m.status==="cancelled"?"line-through":"none"}}>{m.contact}</div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <span style={{color:"#6C5CE7",fontSize:compact?11:12}}>{m.time}</span>
+                <button onClick={()=>{setEditMtgId(m.id);setEditMtgData({...m});}} style={{background:"rgba(108,92,231,0.2)",border:"1px solid rgba(108,92,231,0.4)",color:"#A29BFE",borderRadius:5,padding:"2px 7px",cursor:"pointer",fontSize:10}}>Edit</button>
+              </div>
+            </div>
+            {!compact && <div style={{color:"#8B7FD4",fontSize:12,marginTop:1}}>{m.company}</div>}
+            <div style={{color:"#4A3F80",fontSize:compact?11:12,marginTop:2}}>📍 {m.location} · {m.type}</div>
+            {m.status==="cancelled" && <div style={{color:"#EF4444",fontSize:10,marginTop:2,fontWeight:"bold"}}>✕ Cancelled</div>}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (!user) return (
+    <div style={{minHeight:"100vh",background:"#0A0714",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"2rem",fontFamily:"Arial,sans-serif"}}>
+      <div style={{marginBottom:"2rem",textAlign:"center"}}>
+        <div style={{width:52,height:52,borderRadius:"50%",background:"linear-gradient(135deg,#6C5CE7,#A29BFE)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1rem",fontSize:22}}>⚡</div>
+        <div style={{color:"#fff",fontSize:22,fontWeight:"bold"}}>Conference Intelligence</div>
+      </div>
+      <div style={{width:"100%",maxWidth:320}}>
+        <div style={{color:"#8B7FD4",fontSize:11,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Select your account</div>
+        {Object.entries(SAMS).map(([key,s])=>(
+          <button key={key} onClick={()=>setUser(key)} style={{width:"100%",display:"flex",alignItems:"center",gap:12,background:"rgba(108,92,231,0.08)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:12,padding:"12px 16px",marginBottom:8,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(108,92,231,0.18)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(108,92,231,0.08)"}>
+            <div style={{width:38,height:38,borderRadius:"50%",background:s.color,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:"bold",fontSize:15,flexShrink:0}}>{s.avatar}</div>
+            <div style={{textAlign:"left"}}>
+            <div style={{color:"#fff",fontWeight:"bold",fontSize:14}}>{s.name}</div>
+            <div style={{color:"#6C5CE7",fontSize:11,marginTop:1}}>{s.role}</div>
+            <div style={{color:"#4A3F80",fontSize:10,marginTop:1}}>{s.accounts.join(" · ")}</div>
+          </div>
+            <div style={{marginLeft:"auto",color:"#6C5CE7",fontSize:18}}>›</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const TABS = [{id:"home",icon:"⌂",label:"Home"},{id:"clients",icon:"◎",label:"Clients"},{id:"meetings",icon:"◈",label:"Meetings"},{id:"conference",icon:"✦",label:"Conf. Info"},{id:"scanner",icon:"⬡",label:"Scanner"}];
+
+  const renderHome = () => (
+    <div style={{paddingBottom:80}}>
+      <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,padding:"18px 18px 14px",borderBottom:"1px solid rgba(108,92,231,0.2)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+          <div><div style={{color:"#A29BFE",fontSize:10,textTransform:"uppercase",letterSpacing:"0.1em"}}>Good morning</div><div style={{color:"#fff",fontSize:20,fontWeight:"bold"}}>{sam.name}</div></div>
+          <div style={{display:"flex",gap:5}}>{sam.accounts.map(a=><span key={a} style={{background:"rgba(108,92,231,0.3)",color:"#A29BFE",fontSize:10,padding:"3px 7px",borderRadius:20,border:"1px solid rgba(108,92,231,0.3)"}}>{a}</span>)}</div>
+        </div>
+        <div style={{display:"flex",gap:10,marginTop:10}}>
+          {[["#4ADE80",meetings.filter(m=>m.status==="confirmed").length,"Confirmed"],["#FACC15",meetings.filter(m=>m.status==="pending").length,"Pending"],["#fff",contacts.length,"Contacts"],["#A29BFE",myConfs.length,"Confs"]].map(([col,num,lbl])=>(
+            <div key={lbl} style={{background:"rgba(255,255,255,0.07)",borderRadius:9,padding:"7px 10px",flex:1,textAlign:"center"}}>
+              <div style={{color:col,fontSize:18,fontWeight:"bold"}}>{num}</div>
+              <div style={{color:"#6C5CE7",fontSize:9}}>{lbl}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CONFERENCE COUNTDOWN BANNERS */}
+      {(()=>{
+        const today = new Date();
+        const upcoming = myConfs
+          .map(c => {
+            const firstDay = new Date(c.year, c.month, c.days[0]);
+            const diff = Math.ceil((firstDay - today) / (1000*60*60*24));
+            return { ...c, diff };
+          })
+          .filter(c => c.diff >= 0 && c.diff <= 14)
+          .sort((a,b) => a.diff - b.diff);
+        if (!upcoming.length) return null;
+        return (
+          <div style={{padding:"10px 16px 0"}}>
+            {upcoming.map((c,i) => {
+              const urgent = c.diff <= 3;
+              const soon   = c.diff <= 7;
+              const bg     = urgent ? "rgba(239,68,68,0.12)"  : soon ? "rgba(250,204,21,0.1)"  : "rgba(108,92,231,0.1)";
+              const border = urgent ? "rgba(239,68,68,0.5)"   : soon ? "rgba(250,204,21,0.4)"  : "rgba(108,92,231,0.35)";
+              const dot    = urgent ? "#EF4444" : soon ? "#FACC15" : "#6C5CE7";
+              const label  = c.diff === 0 ? "TODAY" : c.diff === 1 ? "TOMORROW" : `${c.diff} DAYS`;
+              return (
+                <div key={i} onClick={()=>setSelDay({day:c.days[0],conf:c})} style={{background:bg,border:`1px solid ${border}`,borderRadius:12,padding:"10px 14px",marginBottom:8,cursor:"pointer",display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{width:36,height:36,borderRadius:10,background:dot+"22",border:`1px solid ${dot}50`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <span style={{fontSize:16}}>🗓</span>
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{color:"#fff",fontWeight:"bold",fontSize:13,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.name}</div>
+                    <div style={{color:"#8B7FD4",fontSize:11,marginTop:1}}>{c.dates} · {c.location.split(",")[0]}</div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{color:dot,fontWeight:"bold",fontSize:12,letterSpacing:"0.06em"}}>{label}</div>
+                    <div style={{color:"#4A3F80",fontSize:10,marginTop:1}}>Tap to brief →</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
+      <div style={{background:"#0F0A1E",padding:"14px 16px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+          <button onClick={()=>{let m=calMonth-1,y=calYear;if(m<0){m=11;y--;}setCalMonth(m);setCalYear(y);}} style={{background:"none",border:"none",color:"#6C5CE7",fontSize:18,cursor:"pointer"}}>‹</button>
+          <div style={{color:"#fff",fontWeight:"bold",fontSize:13}}>{MONTHS_FULL[calMonth]} {calYear}</div>
+          <button onClick={()=>{let m=calMonth+1,y=calYear;if(m>11){m=0;y++;}setCalMonth(m);setCalYear(y);}} style={{background:"none",border:"none",color:"#6C5CE7",fontSize:18,cursor:"pointer"}}>›</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:4}}>
+          {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{color:"#4A3F80",fontSize:9,textAlign:"center"}}>{d}</div>)}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
+          {Array(firstDay).fill(null).map((_,i)=><div key={`e${i}`}/>)}
+          {Array(daysInMonth).fill(null).map((_,i)=>{
+            const day=i+1, isConf=confDaySet.has(day), hasMtg=mtgDaySet.has(day);
+            return (
+              <div key={day} onClick={()=>{if(isConf){const c=myConfs.find(c=>c.month===calMonth&&c.year===calYear&&c.days.includes(day));if(c)setSelDay({day,conf:c});}}} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",borderRadius:7,background:isConf?LP:"transparent",padding:"2px 1px",minHeight:34,cursor:isConf?"pointer":"default",position:"relative"}}>
+                <span style={{color:isConf?PU:"#ccc",fontSize:11,fontWeight:isConf?"bold":"normal",lineHeight:1.2}}>{day}</span>
+                {isConf&&confDayMap[day]&&<span style={{color:PU,fontSize:6,fontWeight:"bold",lineHeight:1}}>{confDayMap[day]}</span>}
+                {hasMtg&&<div style={{position:"absolute",bottom:1,left:"50%",transform:"translateX(-50%)",width:3,height:3,borderRadius:"50%",background:"#6C5CE7"}}/>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{display:"flex",gap:10,marginTop:8}}>
+          <div style={{display:"flex",alignItems:"center",gap:3}}><div style={{width:9,height:9,borderRadius:2,background:LP}}/><span style={{color:"#8B7FD4",fontSize:9}}>Conference · tap to view</span></div>
+          <div style={{display:"flex",alignItems:"center",gap:3}}><div style={{width:3,height:3,borderRadius:"50%",background:"#6C5CE7"}}/><span style={{color:"#8B7FD4",fontSize:9}}>Meeting</span></div>
+        </div>
+      </div>
+
+      {selDay&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={()=>setSelDay(null)}>
+          <div style={{background:"#0F0A1E",borderRadius:"18px 18px 0 0",width:"100%",border:"1px solid rgba(108,92,231,0.3)",maxHeight:"80vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+            <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,borderRadius:"18px 18px 0 0",padding:"16px 18px",position:"sticky",top:0}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div><div style={{color:"#A29BFE",fontSize:10,textTransform:"uppercase",letterSpacing:"0.1em"}}>Daily Agenda</div><div style={{color:"#fff",fontWeight:"bold",fontSize:15,marginTop:2}}>{selDay.conf.name}</div><div style={{color:"#8B7FD4",fontSize:11,marginTop:2}}>{MONTHS_SHORT[selDay.conf.month]} {selDay.day}, {selDay.conf.year} · {selDay.conf.location}</div></div>
+                <button onClick={()=>setSelDay(null)} style={{background:"rgba(255,255,255,0.1)",border:"none",color:"#fff",width:26,height:26,borderRadius:"50%",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+              </div>
+            </div>
+            <div style={{padding:"14px 18px"}}>
+              <div style={{color:"#6C5CE7",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>Conference Schedule</div>
+              {selDay.conf.schedule.map((s,i)=>(
+                <div key={i} style={{display:"flex",gap:10,marginBottom:8,alignItems:"flex-start"}}>
+                  <div style={{color:"#6C5CE7",fontSize:10,width:58,flexShrink:0,paddingTop:2}}>{s.time}</div>
+                  <div style={{flex:1,background:"rgba(108,92,231,0.08)",borderRadius:7,padding:"6px 10px",borderLeft:"2px solid rgba(108,92,231,0.4)"}}><div style={{color:"#ccc",fontSize:12,lineHeight:1.4}}>{s.item}</div></div>
+                </div>
+              ))}
+              {selDay.conf.protege.length>0&&(
+                <div>
+                  <div style={{color:"#A29BFE",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginTop:12,marginBottom:8}}>⚡ Protege Activations</div>
+                  {selDay.conf.protege.map((p,i)=><div key={i} style={{background:"rgba(108,92,231,0.12)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 10px",marginBottom:5,borderLeft:"3px solid #6C5CE7"}}><div style={{color:"#A29BFE",fontSize:12}}>{p}</div></div>)}
+                </div>
+              )}
+              {(()=>{
+                const dayMtgs=meetings.filter(m=>{const d=new Date(m.date);return d.getDate()===selDay.day&&d.getMonth()===selDay.conf.month&&d.getFullYear()===selDay.conf.year;});
+                if(!dayMtgs.length)return null;
+                return (<div><div style={{color:"#8B7FD4",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginTop:12,marginBottom:8}}>Your Meetings This Day</div>{dayMtgs.map(m=><MtgCard key={m.id} m={m} compact={true}/>)}</div>);
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{padding:"14px 18px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+          <div style={{color:"#6C5CE7",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em"}}>Daily Agenda</div>
+          <input value={agendaDate} onChange={e=>setAgendaDate(e.target.value)} style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"4px 9px",color:"#A29BFE",fontSize:11,outline:"none",fontFamily:"Arial,sans-serif",width:110,textAlign:"right"}}/>
+        </div>
+        {Array.from({length:15},(_,i)=>{
+          const hour=i+8;
+          const label=hour<12?`${hour}:00 AM`:hour===12?"12:00 PM":`${hour-12}:00 PM`;
+          const mts=meetings.filter(m=>m.date===agendaDate&&toHour(m.time)===hour);
+          return (
+            <div key={hour} style={{display:"flex",gap:8,minHeight:34,borderLeft:"1px solid rgba(108,92,231,0.15)",paddingLeft:8,marginBottom:1,alignItems:"flex-start"}}>
+              <div style={{color:"#4A3F80",fontSize:10,width:52,paddingTop:2,flexShrink:0}}>{label}</div>
+              <div style={{flex:1,paddingTop:1,paddingBottom:3}}>
+                {mts.map(m=><MtgCard key={m.id} m={m} compact={true}/>)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderClients = () => (
+    <div style={{paddingBottom:80}}>
+      <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,padding:"18px 18px 14px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{color:"#fff",fontSize:16,fontWeight:"bold"}}>Clients</div>
+          <button onClick={()=>setShowAddContact(true)} style={{background:"#6C5CE7",border:"none",color:"#fff",width:30,height:30,borderRadius:"50%",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+        </div>
+        <div style={{color:"#8B7FD4",fontSize:11,marginTop:3}}>{contacts.length} contacts loaded</div>
+      </div>
+
+      {!selContact && (
+        <div style={{padding:"10px 18px 0"}}>
+          <button onClick={()=>{
+            const rows = ["First Name,Last Name,Company,Title,Email,Phone,LinkedIn,Vertical,Tag,Notes,Last Contact"];
+            contacts.forEach(c => {
+              rows.push([c.first,c.last,c.company,c.title,c.email||"",c.phone||"",c.linkedin||"",c.vertical||"",c.tag,c.notes||"",c.lastContact||""].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
+            });
+            const blob = new Blob([rows.join("\n")], {type:"text/csv"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `protege-contacts-${user}-${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:8,background:"rgba(255,108,0,0.1)",border:"1px solid rgba(255,108,0,0.4)",borderRadius:10,padding:"10px 0",cursor:"pointer",color:"#FF6C00",fontWeight:"bold",fontSize:13,fontFamily:"Arial,sans-serif"}}>
+            <span style={{fontSize:15}}>↗</span> Export to HubSpot (CSV)
+          </button>
+          <div style={{color:"#4A3F80",fontSize:10,textAlign:"center",marginTop:5,marginBottom:8}}>Downloads a CSV ready to import directly into HubSpot Contacts</div>
+        </div>
+      )}
+
+      {selContact ? (
+        <div style={{padding:18}}>
+          <button onClick={()=>setSelContact(null)} style={{background:"none",border:"none",color:"#6C5CE7",cursor:"pointer",fontSize:13,marginBottom:14,padding:0}}>‹ Back</button>
+          <div style={{background:"#0F0A1E",borderRadius:14,padding:18,border:"1px solid rgba(108,92,231,0.2)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+              <div style={{width:46,height:46,borderRadius:"50%",background:sam.color,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:"bold",fontSize:17,flexShrink:0}}>{selContact.first[0]}</div>
+              <div>
+                <div style={{color:"#fff",fontWeight:"bold",fontSize:16}}>{selContact.first} {selContact.last}</div>
+                <div style={{color:"#8B7FD4",fontSize:12}}>{selContact.title}</div>
+                <div style={{color:"#6C5CE7",fontSize:11}}>{selContact.company}</div>
+              </div>
+              <span style={{marginLeft:"auto",background:TAG_COLORS[selContact.tag]?.bg,color:TAG_COLORS[selContact.tag]?.text,fontSize:11,padding:"3px 9px",borderRadius:20}}>{selContact.tag}</span>
+            </div>
+            {[["✉","email","Add email..."],["✆","phone","Add phone..."],["in","linkedin","Add LinkedIn..."]].map(([icon,field,ph])=>(
+              <div key={field} style={{display:"flex",gap:9,marginBottom:7,alignItems:"center"}}>
+                <span style={{color:"#6C5CE7",width:18,flexShrink:0,fontSize:13}}>{icon}</span>
+                <input value={selContact[field]||""} placeholder={ph} onChange={e=>{const u=contacts.map(c=>c.id===selContact.id?{...c,[field]:e.target.value}:c);saveCon(u);setSelContact(p=>({...p,[field]:e.target.value}));}} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(108,92,231,0.2)",borderRadius:7,padding:"6px 9px",color:field==="linkedin"?"#A29BFE":"#ccc",fontSize:12,outline:"none",fontFamily:"Arial,sans-serif"}}/>
+              </div>
+            ))}
+            <div style={{display:"flex",gap:9,marginTop:7,alignItems:"center"}}>
+              <span style={{color:"#6C5CE7",width:18,flexShrink:0,fontSize:11}}>◈</span>
+              <select value={selContact.vertical||""} onChange={e=>{const u=contacts.map(c=>c.id===selContact.id?{...c,vertical:e.target.value}:c);saveCon(u);setSelContact(p=>({...p,vertical:e.target.value}));}} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(108,92,231,0.2)",borderRadius:7,padding:"6px 9px",color:selContact.vertical?VERTICAL_COLORS[selContact.vertical]||"#ccc":"#4A3F80",fontSize:12,outline:"none",fontFamily:"Arial,sans-serif"}}>
+                <option value="">Select vertical...</option>
+                {VERTICALS.map(v=><option key={v} value={v} style={{color:VERTICAL_COLORS[v]||"#333"}}>{v}</option>)}
+              </select>
+            </div>
+            {selContact.lastContact&&<div style={{background:"rgba(108,92,231,0.1)",borderRadius:7,padding:9,marginTop:6}}><div style={{color:"#8B7FD4",fontSize:9,textTransform:"uppercase",letterSpacing:"0.08em"}}>Last Contact</div><div style={{color:"#ccc",fontSize:12,marginTop:2}}>{selContact.lastContact}</div></div>}
+            <div style={{background:"rgba(108,92,231,0.1)",borderRadius:7,padding:9,marginTop:7}}>
+              <div style={{color:"#8B7FD4",fontSize:9,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Notes</div>
+              <textarea value={selContact.notes||""} onChange={e=>{const u=contacts.map(c=>c.id===selContact.id?{...c,notes:e.target.value}:c);saveCon(u);setSelContact(p=>({...p,notes:e.target.value}));}} placeholder="Add notes..." rows={4} style={{width:"100%",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#ccc",fontSize:12,lineHeight:1.5,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"Arial,sans-serif"}}/>
+            </div>
+            <button style={{width:"100%",background:"#6C5CE7",border:"none",color:"#fff",borderRadius:9,padding:"11px 0",marginTop:12,cursor:"pointer",fontWeight:"bold",fontSize:13}}>Send Outreach Email →</button>
+            <button onClick={()=>{if(window.confirm(`Delete ${selContact.first} ${selContact.last}?`)){saveCon(contacts.filter(c=>c.id!==selContact.id));setSelContact(null);}}} style={{width:"100%",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.35)",color:"#EF4444",borderRadius:9,padding:"10px 0",marginTop:7,cursor:"pointer",fontWeight:"bold",fontSize:13}}>Delete Contact</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{padding:"14px 18px"}}>
+          {contacts.map(c=>(
+            <button key={c.id} onClick={()=>setSelContact(c)} style={{width:"100%",display:"flex",alignItems:"center",gap:10,background:"#0F0A1E",border:"1px solid rgba(108,92,231,0.15)",borderRadius:11,padding:"11px 12px",marginBottom:7,cursor:"pointer",textAlign:"left"}}>
+              <div style={{width:36,height:36,borderRadius:"50%",background:sam.color+"33",border:`1px solid ${sam.color}`,display:"flex",alignItems:"center",justifyContent:"center",color:sam.color,fontWeight:"bold",fontSize:13,flexShrink:0}}>{c.first[0]}</div>
+              <div style={{flex:1,minWidth:0}}><div style={{color:"#fff",fontWeight:"bold",fontSize:13}}>{c.first} {c.last}</div><div style={{color:"#8B7FD4",fontSize:11}}>{c.title} · {c.company}</div></div>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3,flexShrink:0}}>
+                <span style={{background:TAG_COLORS[c.tag]?.bg,color:TAG_COLORS[c.tag]?.text,fontSize:10,padding:"2px 8px",borderRadius:20}}>{c.tag}</span>
+                {c.vertical&&<span style={{background:"rgba(0,0,0,0.3)",color:VERTICAL_COLORS[c.vertical]||"#8B7FD4",fontSize:9,padding:"1px 6px",borderRadius:10,border:`1px solid ${VERTICAL_COLORS[c.vertical]||"#6C5CE7"}40`}}>{c.vertical}</span>}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {showAddContact&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:100,display:"flex",alignItems:"flex-end"}}>
+          <div style={{background:"#0F0A1E",borderRadius:"18px 18px 0 0",padding:20,width:"100%",border:"1px solid rgba(108,92,231,0.3)"}}>
+            <div style={{color:"#fff",fontSize:14,fontWeight:"bold",marginBottom:14}}>Add Contact</div>
+            <div style={{marginBottom:9}}>
+              <div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>Vertical</div>
+              <select value={newContact.vertical||""} onChange={e=>setNewContact(p=>({...p,vertical:e.target.value}))} style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,boxSizing:"border-box",outline:"none"}}>
+                <option value="">Select vertical...</option>
+                {VERTICALS.map(v=><option key={v}>{v}</option>)}
+              </select>
+            </div>
+            {[["First Name","first"],["Last Name","last"],["Company","company"],["Title","title"],["Email","email"],["Phone","phone"],["LinkedIn","linkedin"],["Notes","notes"]].map(([lbl,field])=>(
+              <div key={field} style={{marginBottom:9}}>
+                <div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>{lbl}</div>
+                <input value={newContact[field]} onChange={e=>setNewContact(p=>({...p,[field]:e.target.value}))} style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,boxSizing:"border-box",outline:"none"}}/>
+              </div>
+            ))}
+            <div style={{display:"flex",gap:9,marginTop:12}}>
+              <button onClick={()=>setShowAddContact(false)} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",borderRadius:9,padding:"10px 0",cursor:"pointer"}}>Cancel</button>
+              <button onClick={()=>{saveCon([...contacts,{...newContact,id:Date.now(),tag:"Awareness",lastContact:"",vertical:newContact.vertical||""}]);setShowAddContact(false);setNewContact({first:"",last:"",company:"",title:"",email:"",phone:"",notes:"",linkedin:""});}} style={{flex:1,background:"#6C5CE7",border:"none",color:"#fff",borderRadius:9,padding:"10px 0",cursor:"pointer",fontWeight:"bold"}}>Add Contact</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderMeetings = () => (
+    <div style={{paddingBottom:80}}>
+      <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,padding:"18px 18px 14px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{color:"#fff",fontSize:16,fontWeight:"bold"}}>Meetings</div>
+          <button onClick={()=>setShowAddMeeting(true)} style={{background:"#6C5CE7",border:"none",color:"#fff",width:30,height:30,borderRadius:"50%",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+        </div>
+        <div style={{display:"flex",gap:7,marginTop:10,flexWrap:"wrap"}}>
+          {Object.entries(STATUS_CONFIG).map(([k,v])=>(
+            <div key={k} style={{background:v.bg+"33",border:`1px solid ${v.dot}40`,borderRadius:7,padding:"3px 9px",display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:5,height:5,borderRadius:"50%",background:v.dot}}/>
+              <span style={{color:v.text,fontSize:10}}>{meetings.filter(m=>m.status===k).length} {v.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{padding:"14px 18px"}}>
+        {["confirmed","pending","unconfirmed","cancelled"].map(status=>{
+          const cfg=STATUS_CONFIG[status], group=meetings.filter(m=>m.status===status);
+          if(!group.length)return null;
+          return (
+            <div key={status} style={{marginBottom:18}}>
+              <div style={{color:cfg.text,fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:5,height:5,borderRadius:"50%",background:cfg.dot}}/>{cfg.label}
+              </div>
+              {group.map(m=><MtgCard key={m.id} m={m}/>)}
+            </div>
+          );
+        })}
+      </div>
+      {showAddMeeting&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:100,display:"flex",alignItems:"flex-end"}}>
+          <div style={{background:"#0F0A1E",borderRadius:"18px 18px 0 0",padding:20,width:"100%",border:"1px solid rgba(108,92,231,0.3)"}}>
+            <div style={{color:"#fff",fontSize:14,fontWeight:"bold",marginBottom:14}}>Add Meeting</div>
+            {[["Contact Name","contact"],["Company","company"],["Date (e.g. Jun 16, 2026)","date"],["Time (e.g. 7:30 AM)","time"],["Location","location"]].map(([lbl,field])=>(
+              <div key={field} style={{marginBottom:9}}><div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>{lbl}</div><input value={newMeeting[field]} onChange={e=>setNewMeeting(p=>({...p,[field]:e.target.value}))} style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,boxSizing:"border-box",outline:"none"}}/></div>
+            ))}
+            <div style={{marginBottom:9}}><div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>Status</div><select value={newMeeting.status} onChange={e=>setNewMeeting(p=>({...p,status:e.target.value}))} style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,outline:"none"}}><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="unconfirmed">Unconfirmed</option></select></div>
+            <div style={{display:"flex",gap:9,marginTop:12}}>
+              <button onClick={()=>setShowAddMeeting(false)} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",borderRadius:9,padding:"10px 0",cursor:"pointer"}}>Cancel</button>
+              <button onClick={()=>{saveMtg([...meetings,{...newMeeting,id:Date.now()}]);setShowAddMeeting(false);setNewMeeting({contact:"",company:"",date:"",time:"",location:"",type:"1:1",status:"pending"});}} style={{flex:1,background:"#6C5CE7",border:"none",color:"#fff",borderRadius:9,padding:"10px 0",cursor:"pointer",fontWeight:"bold"}}>Add Meeting</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderConference = () => (
+    <div style={{paddingBottom:80}}>
+      <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,padding:"18px 18px 14px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{color:"#fff",fontSize:16,fontWeight:"bold"}}>Conference Info</div>
+          <button onClick={()=>setShowAddMisc(true)} style={{background:"#6C5CE7",border:"none",color:"#fff",width:30,height:30,borderRadius:"50%",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+        </div>
+        <div style={{color:"#8B7FD4",fontSize:11,marginTop:3}}>{myConfs.length} conferences · Know Before You Go</div>
+      </div>
+      <div style={{padding:"14px 18px"}}>
+        {myConfs.map((conf,ci)=>(
+          <div key={ci} style={{background:"#0F0A1E",border:"1px solid rgba(108,92,231,0.2)",borderRadius:14,marginBottom:14,overflow:"hidden"}}>
+            <div style={{background:"rgba(108,92,231,0.15)",padding:"12px 14px",borderBottom:"1px solid rgba(108,92,231,0.15)"}}>
+              <div style={{color:"#A29BFE",fontWeight:"bold",fontSize:14}}>{conf.name}</div>
+              <div style={{color:"#6C5CE7",fontSize:11,marginTop:3}}>📅 {conf.dates}</div>
+              <a href={conf.mapLink} target="_blank" rel="noreferrer" style={{color:"#8B7FD4",fontSize:11,display:"block",marginTop:2,textDecoration:"none"}}>📍 {conf.location} →</a>
+            </div>
+            <div style={{padding:12}}>
+              <div style={{color:"#6C5CE7",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:7}}>Rough Schedule</div>
+              {conf.schedule.map((s,i)=>(
+                <div key={i} style={{display:"flex",gap:8,marginBottom:5}}>
+                  <div style={{color:"#4A3F80",fontSize:10,width:58,flexShrink:0}}>{s.time}</div>
+                  <div style={{color:"#ccc",fontSize:12,lineHeight:1.4}}>{s.item}</div>
+                </div>
+              ))}
+              <div style={{borderTop:"1px solid rgba(108,92,231,0.15)",paddingTop:10,marginTop:8}}>
+                <div style={{color:"#A29BFE",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:7}}>⚡ Protege Notes</div>
+                {conf.protege.map((p,i)=><div key={i} style={{color:"#ccc",fontSize:12,marginBottom:4,paddingLeft:9,borderLeft:"2px solid #6C5CE7"}}>{p}</div>)}
+              </div>
+              {(confMisc[conf.name]||[]).length>0&&(
+                <div style={{borderTop:"1px solid rgba(108,92,231,0.15)",paddingTop:10,marginTop:8}}>
+                  <div style={{color:"#8B7FD4",fontSize:10,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:7}}>Your Notes</div>
+                  {(confMisc[conf.name]||[]).map((note,i)=><div key={i} style={{color:"#ccc",fontSize:12,marginBottom:4,background:"rgba(255,255,255,0.03)",borderRadius:5,padding:"5px 9px"}}>{note}</div>)}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      {showAddMisc&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:100,display:"flex",alignItems:"flex-end"}}>
+          <div style={{background:"#0F0A1E",borderRadius:"18px 18px 0 0",padding:20,width:"100%",border:"1px solid rgba(108,92,231,0.3)"}}>
+            <div style={{color:"#fff",fontSize:14,fontWeight:"bold",marginBottom:14}}>Add Conference Note</div>
+            <div style={{marginBottom:9}}><div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>Conference</div><select id="mconf" style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,outline:"none"}}>{myConfs.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}</select></div>
+            <div style={{marginBottom:9}}><div style={{color:"#8B7FD4",fontSize:10,marginBottom:3}}>Note</div><textarea value={newMisc} onChange={e=>setNewMisc(e.target.value)} rows={3} style={{width:"100%",background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:7,padding:"7px 9px",color:"#fff",fontSize:13,boxSizing:"border-box",resize:"none",outline:"none"}}/></div>
+            <div style={{display:"flex",gap:9,marginTop:12}}>
+              <button onClick={()=>setShowAddMisc(false)} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",borderRadius:9,padding:"10px 0",cursor:"pointer"}}>Cancel</button>
+              <button onClick={()=>{const sel=document.getElementById("mconf")?.value||myConfs[0]?.name;if(sel){const u={...confMisc,[sel]:[...(confMisc[sel]||[]),newMisc]};saveMsc(u);}setShowAddMisc(false);setNewMisc("");}} style={{flex:1,background:"#6C5CE7",border:"none",color:"#fff",borderRadius:9,padding:"10px 0",cursor:"pointer",fontWeight:"bold"}}>Add Note</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderScanner = () => (
+    <div style={{paddingBottom:80}}>
+      <div style={{background:`linear-gradient(135deg,${PU},#1A1040)`,padding:"18px 18px 14px"}}>
+        <div style={{color:"#fff",fontSize:16,fontWeight:"bold"}}>Badge Scanner</div>
+        <div style={{color:"#8B7FD4",fontSize:11,marginTop:3}}>Scan a badge to add instantly to Clients</div>
+      </div>
+      <div style={{padding:"18px 18px"}}>
+        {!scanMode&&!scanned?(
+          <div style={{textAlign:"center"}}>
+            <div style={{background:"#0F0A1E",border:"2px dashed rgba(108,92,231,0.4)",borderRadius:18,padding:"36px 18px",marginBottom:18}}>
+              <div style={{fontSize:44,marginBottom:14}}>⬡</div>
+              <div style={{color:"#A29BFE",fontWeight:"bold",fontSize:15}}>Tap to Scan Badge</div>
+              <div style={{color:"#4A3F80",fontSize:12,marginTop:7}}>Point camera at conference badge to extract contact info via LinkedIn</div>
+              <button onClick={()=>setScanMode(true)} style={{background:"#6C5CE7",border:"none",color:"#fff",borderRadius:11,padding:"12px 28px",marginTop:18,cursor:"pointer",fontWeight:"bold",fontSize:14}}>Open Camera</button>
+            </div>
+            <div style={{color:"#4A3F80",fontSize:11,marginBottom:10}}>Or simulate a badge scan:</div>
+            {SAMPLE_BADGES.map((b,i)=>(
+              <button key={i} onClick={()=>setScanned({...b,id:Date.now(),tag:"Awareness",notes:"",lastContact:"",phone:""})} style={{width:"100%",display:"flex",alignItems:"center",gap:10,background:"#0F0A1E",border:"1px solid rgba(108,92,231,0.2)",borderRadius:11,padding:"11px 12px",marginBottom:7,cursor:"pointer",textAlign:"left"}}>
+                <div style={{width:36,height:36,borderRadius:"50%",background:"rgba(108,92,231,0.2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#A29BFE",fontWeight:"bold",fontSize:13}}>{b.first[0]}</div>
+                <div><div style={{color:"#fff",fontWeight:"bold",fontSize:13}}>{b.first} {b.last}</div><div style={{color:"#8B7FD4",fontSize:11}}>{b.title} · {b.company}</div></div>
+                <span style={{marginLeft:"auto",color:"#6C5CE7",fontSize:18}}>›</span>
+              </button>
+            ))}
+          </div>
+        ):scanMode?(
+          <div style={{textAlign:"center"}}>
+            <div style={{background:"#0F0A1E",borderRadius:18,padding:18,marginBottom:14}}>
+              <div style={{width:"100%",aspectRatio:"4/3",background:"rgba(0,0,0,0.5)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",border:"2px solid #6C5CE7",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",inset:0,background:"linear-gradient(transparent 40%,rgba(108,92,231,0.1) 50%,transparent 60%)",animation:"scan 2s linear infinite"}}/>
+                <div style={{color:"#6C5CE7",fontSize:12}}>Camera active · Align badge in frame</div>
+              </div>
+              <button onClick={()=>{setScanMode(false);setScanned({...SAMPLE_BADGES[0],id:Date.now(),tag:"Awareness",notes:"",lastContact:"",phone:""});}} style={{background:"#6C5CE7",border:"none",color:"#fff",borderRadius:11,padding:"11px 26px",marginTop:14,cursor:"pointer",fontWeight:"bold"}}>Simulate Scan</button>
+            </div>
+            <button onClick={()=>setScanMode(false)} style={{background:"none",border:"none",color:"#8B7FD4",cursor:"pointer",fontSize:12}}>Cancel</button>
+          </div>
+        ):scanned?(
+          <div>
+            <div style={{background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",borderRadius:11,padding:"9px 12px",marginBottom:14,display:"flex",alignItems:"center",gap:7}}>
+              <span style={{color:"#22C55E",fontSize:15}}>✓</span><span style={{color:"#22C55E",fontSize:12}}>Badge scanned successfully</span>
+            </div>
+            <div style={{background:"#0F0A1E",border:"1px solid rgba(108,92,231,0.2)",borderRadius:14,padding:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                <div style={{width:44,height:44,borderRadius:"50%",background:"rgba(108,92,231,0.2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#A29BFE",fontWeight:"bold",fontSize:17}}>{scanned.first[0]}</div>
+                <div><div style={{color:"#fff",fontWeight:"bold",fontSize:16}}>{scanned.first} {scanned.last}</div><div style={{color:"#8B7FD4",fontSize:12}}>{scanned.title} · {scanned.company}</div></div>
+              </div>
+              {[["✉",scanned.email],["in",scanned.linkedin]].map(([icon,val])=>val&&<div key={icon} style={{display:"flex",gap:9,marginBottom:7}}><span style={{color:"#6C5CE7",width:18,fontSize:12}}>{icon}</span><span style={{color:"#ccc",fontSize:12}}>{val}</span></div>)}
+              <div style={{display:"flex",gap:9,marginTop:14}}>
+                <button onClick={()=>setScanned(null)} style={{flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",borderRadius:9,padding:"10px 0",cursor:"pointer"}}>Discard</button>
+                <button onClick={()=>{saveCon([...contacts,scanned]);setScanned(null);setTab("clients");}} style={{flex:1,background:"#22C55E",border:"none",color:"#fff",borderRadius:9,padding:"10px 0",cursor:"pointer",fontWeight:"bold"}}>Add Connection +</button>
+              </div>
+            </div>
+          </div>
+        ):null}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",background:"#080612",fontFamily:"Arial,sans-serif",position:"relative"}}>
+      <style>{`*{box-sizing:border-box;}input,select,textarea{outline:none;font-family:Arial,sans-serif;}button{font-family:Arial,sans-serif;}@keyframes scan{0%{transform:translateY(-100%);}100%{transform:translateY(200%);}}::-webkit-scrollbar{width:0;}`}</style>
+      <div style={{overflowY:"auto",height:"calc(100vh - 62px)"}}>
+        {tab==="home"&&renderHome()}
+        {tab==="clients"&&renderClients()}
+        {tab==="meetings"&&renderMeetings()}
+        {tab==="conference"&&renderConference()}
+        {tab==="scanner"&&renderScanner()}
+      </div>
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:"rgba(10,6,20,0.97)",backdropFilter:"blur(20px)",borderTop:"1px solid rgba(108,92,231,0.2)",display:"flex",zIndex:50}}>
+        {TABS.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"9px 4px 7px",background:"none",border:"none",cursor:"pointer",position:"relative"}}>
+            {tab===t.id&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:28,height:2,background:"#6C5CE7",borderRadius:2}}/>}
+            <span style={{fontSize:17,opacity:tab===t.id?1:0.4,color:tab===t.id?"#A29BFE":"#fff"}}>{t.icon}</span>
+            <span style={{fontSize:9,color:tab===t.id?"#A29BFE":"#4A3F80",letterSpacing:"0.04em"}}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+      <div style={{position:"fixed",top:10,right:10,zIndex:200}}>
+        <button onClick={()=>{setUser(null);setTab("home");}} style={{background:"rgba(108,92,231,0.15)",border:"1px solid rgba(108,92,231,0.3)",color:"#8B7FD4",borderRadius:18,padding:"4px 11px",fontSize:10,cursor:"pointer"}}>⟵ Switch</button>
+      </div>
+    </div>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(ProtegeApp));
+  </script>
+</body>
+</html>
